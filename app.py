@@ -1,6 +1,6 @@
 import streamlit as st
 from engines.financial_engine import run_financial_engine
-
+from engines.risk_engine import run_risk_engine
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
@@ -51,8 +51,16 @@ elif page == "Financial Engine":
 # OTHER ENGINES PLACEHOLDER
 
 elif page == "Risk Engine":
-    st.header("Risk Engine")
-    st.write("Risk engine will be implemented here.")
+
+    st.header("Risk Intelligence Engine")
+
+    severity = st.slider("Risk Severity",1,10,5)
+    probability = st.slider("Risk Probability",0.0,1.0,0.3)
+
+    results = run_risk_engine(severity,probability)
+
+    st.write("Risk Score:", results["risk_score"])
+    st.write("Risk Level:", results["risk_level"])
 
 elif page == "Opportunity Engine":
     st.header("Opportunity Engine")
