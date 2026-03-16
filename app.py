@@ -59,7 +59,6 @@ if page == "Master Dashboard":
         st.metric("ROI Projection (%)", round(roi_projection,2))
         st.metric("Capital Allocation Priority", round(capital_priority,2))
         st.metric("Global Expansion Priority", expansion_priority)
-
 st.subheader("Visual Strategic Analytics")
 
 # ROI Trend (Sample Data)
