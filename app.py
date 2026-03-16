@@ -4,7 +4,7 @@ from engines.risk_engine import run_risk_engine
 from engines.opportunity_engine import run_opportunity_engine
 from engines.capital_engine import run_capital_engine
 from engines.market_engine import run_market_engine
-
+from engines.governance_engine import run_governance_engine
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
