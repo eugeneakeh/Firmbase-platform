@@ -5,6 +5,7 @@ from engines.opportunity_engine import run_opportunity_engine
 from engines.capital_engine import run_capital_engine
 from engines.market_engine import run_market_engine
 from engines.governance_engine import run_governance_engine
+import plotly.graph_objects as go
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
@@ -58,6 +59,37 @@ if page == "Master Dashboard":
         st.metric("ROI Projection (%)", round(roi_projection,2))
         st.metric("Capital Allocation Priority", round(capital_priority,2))
         st.metric("Global Expansion Priority", expansion_priority)
+
+st.subheader("Visual Strategic Analytics")
+
+# ROI Trend (Sample Data)
+roi_trend = [25, 28, 32, 35, 37, 40]
+months = ["Jan","Feb","Mar","Apr","May","Jun"]
+fig_roi = go.Figure()
+fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode='lines+markers', name='ROI %'))
+fig_roi.update_layout(title="ROI Trend", xaxis_title="Month", yaxis_title="ROI (%)")
+st.plotly_chart(fig_roi)
+
+# Risk Exposure Bar Chart
+risk_levels = ['Financial','Risk','Opportunity','Capital','Market','Governance']
+risk_values = [20, 15, 10, 12, 18, 5]  # Sample scores
+fig_risk = go.Figure([go.Bar(x=risk_levels, y=risk_values, marker_color='red')])
+fig_risk.update_layout(title="Risk Exposure by Engine", yaxis_title="Risk Score")
+st.plotly_chart(fig_risk)
+
+# Opportunity Scores
+opportunity_scores = [7, 6, 8, 5]
+opportunity_names = ['New Product','Partnership','Expansion','M&A']
+fig_op = go.Figure([go.Bar(x=opportunity_names, y=opportunity_scores, marker_color='green')])
+fig_op.update_layout(title="Opportunity Scores", yaxis_title="Score")
+st.plotly_chart(fig_op)
+
+# Market Expansion Priority
+markets = ['USA','Nigeria','Germany','India']
+market_priority = [1000000, 500000, 800000, 650000]
+fig_market = go.Figure([go.Bar(x=markets, y=market_priority, marker_color='blue')])
+fig_market.update_layout(title="Market Expansion Priority", yaxis_title="Priority Score")
+st.plotly_chart(fig_market)
 
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
