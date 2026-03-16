@@ -2,6 +2,7 @@ import streamlit as st
 from engines.financial_engine import run_financial_engine
 from engines.risk_engine import run_risk_engine
 from engines.opportunity_engine import run_opportunity_engine
+from engines.capital_engine import run_capital_engine
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
@@ -76,9 +77,18 @@ elif page == "Opportunity Engine":
     st.write("Recommendation:", results["decision"])
     
 elif page == "Capital Allocation":
-    st.header("Capital Allocation Engine")
-    st.write("Capital allocation logic coming soon.")
 
+    st.header("Capital Allocation Engine")
+
+    roi = st.slider("Expected ROI",0.0,1.0,0.3)
+    priority = st.slider("Strategic Priority",0.0,1.0,0.8)
+    risk = st.slider("Investment Risk",0.0,1.0,0.2)
+
+    results = run_capital_engine(roi,priority,risk)
+
+    st.write("Allocation Score:", results["allocation_score"])
+    st.write("Investment Decision:", results["decision"])
+    
 elif page == "Market Expansion":
     st.header("Market Expansion Engine")
     st.write("Market intelligence coming soon.")
