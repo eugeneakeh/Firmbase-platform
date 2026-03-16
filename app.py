@@ -4,6 +4,7 @@ from engines.risk_engine import run_risk_engine
 from engines.opportunity_engine import run_opportunity_engine
 from engines.capital_engine import run_capital_engine
 from engines.market_engine import run_market_engine
+
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
@@ -103,5 +104,16 @@ elif page == "Market Expansion":
     st.write("Recommended Strategy:", results["decision"])
 
 elif page == "Governance":
+
     st.header("Governance & Compliance Engine")
-    st.write("Governance monitoring coming soon.")
+
+    compliance = st.selectbox(
+        "Compliance Status",
+        [1,0],
+        format_func=lambda x: "Compliant" if x == 1 else "Non-Compliant"
+    )
+
+    results = run_governance_engine(compliance)
+
+    st.write("Governance Risk Exposure:", results["risk_exposure"])
+    st.write("Status:", results["status"])
