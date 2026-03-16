@@ -25,14 +25,39 @@ page = st.sidebar.selectbox(
 # MASTER DASHBOARD
 if page == "Master Dashboard":
 
-    st.header("Master Strategic Dashboard")
+    st.header("Firmbase Strategic Intelligence Dashboard")
 
-    st.write("This dashboard aggregates outputs from all Firmbase engines.")
+    st.write("Unified strategic intelligence across all Firmbase engines")
 
-    st.metric("Business Stability Index", "Pending")
-    st.metric("Strategic Opportunity Score", "Pending")
-    st.metric("Risk Exposure Index", "Pending")
-    st.metric("ROI Projection", "Pending")
+    # --- Sample Inputs for Global Metrics ---
+    
+    roi = 0.35
+    risk_score = 1.5
+    opportunity_score = 6.5
+    allocation_score = 0.4
+    market_priority = 600000
+    governance_exposure = 0
+
+    # --- Strategic Indicators ---
+
+    business_stability = (roi * (1 - risk_score/10)) * 100
+    strategic_opportunity = opportunity_score * 10
+    risk_exposure = risk_score * 10
+    roi_projection = roi * 100
+    capital_priority = allocation_score * 100
+    expansion_priority = market_priority
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("Business Stability Index", round(business_stability,2))
+        st.metric("Strategic Opportunity Score", round(strategic_opportunity,2))
+        st.metric("Risk Exposure Index", round(risk_exposure,2))
+
+    with col2:
+        st.metric("ROI Projection (%)", round(roi_projection,2))
+        st.metric("Capital Allocation Priority", round(capital_priority,2))
+        st.metric("Global Expansion Priority", expansion_priority)
 
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
