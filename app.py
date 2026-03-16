@@ -28,7 +28,7 @@ page = st.sidebar.selectbox(
 if page == "Master Dashboard":
 
     st.header("Firmbase Dynamic Strategic Intelligence Dashboard")
-    st.write("Aggregates real-time outputs from all Firmbase engines with AI-driven recommendations")
+    st.write("Aggregates real-time outputs from all Firmbase engines and provides actionable strategic guidance")
 
     # --- ENGINE INPUTS ---
     # Financial Engine
@@ -68,13 +68,23 @@ if page == "Master Dashboard":
     gov_results = run_governance_engine(compliance)
     governance_exposure = gov_results["risk_exposure"]
 
+    # --- AI Feedback / Strategic Adjustment (Silent) ---
+    ai_results = run_ai_feedback(roi, risk_score, opportunity_score, allocation_score, market_priority)
+
+    # Apply adjustments silently to metrics
+    adjusted_roi = roi * ai_results["improvement_score"]["Financial"]
+    adjusted_risk_score = risk_score * (1 - ai_results["improvement_score"]["Risk"])
+    adjusted_opportunity = opportunity_score * ai_results["improvement_score"]["Opportunity"]
+    adjusted_allocation = allocation_score * ai_results["improvement_score"]["Capital"]
+    adjusted_market = market_priority * ai_results["improvement_score"]["Market"]
+
     # --- STRATEGIC METRICS ---
-    business_stability = (roi * (1 - risk_score/10)) * 100
-    strategic_opportunity = opportunity_score * 10
-    risk_exposure = risk_score * 10
-    roi_projection = roi * 100
-    capital_priority = allocation_score * 100
-    expansion_priority = market_priority
+    business_stability = (adjusted_roi * (1 - adjusted_risk_score/10)) * 100
+    strategic_opportunity = adjusted_opportunity * 10
+    risk_exposure = adjusted_risk_score * 10
+    roi_projection = adjusted_roi * 100
+    capital_priority = adjusted_allocation * 100
+    expansion_priority = adjusted_market
 
     # Display Metrics
     col1, col2 = st.columns(2)
@@ -87,11 +97,11 @@ if page == "Master Dashboard":
         st.metric("Capital Allocation Priority", round(capital_priority,2))
         st.metric("Global Expansion Priority", expansion_priority)
 
-    # --- VISUAL STRATEGIC ANALYTICS ---
+    # --- Visual Strategic Analytics ---
     st.subheader("Dynamic Visual Analytics")
 
     # ROI Trend
-    roi_trend = [roi*80, roi*85, roi*90, roi*95, roi*100, roi*105]  # dynamically scaled
+    roi_trend = [adjusted_roi*80, adjusted_roi*85, adjusted_roi*90, adjusted_roi*95, adjusted_roi*100, adjusted_roi*105]
     months = ["Jan","Feb","Mar","Apr","May","Jun"]
     fig_roi = go.Figure()
     fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode='lines+markers', name='ROI %'))
@@ -102,7 +112,7 @@ if page == "Master Dashboard":
     risk_levels = ['Financial','Risk','Opportunity','Capital','Market','Governance']
     risk_values = [
         financial_risk*20,
-        risk_score,
+        adjusted_risk_score,
         opportunity_risk*10,
         financial_risk*15,
         regulation*20,
@@ -114,22 +124,24 @@ if page == "Master Dashboard":
 
     # Opportunity Score
     opportunity_names = ['Current Opportunity']
-    fig_op = go.Figure([go.Bar(x=opportunity_names, y=[opportunity_score], marker_color='green')])
+    fig_op = go.Figure([go.Bar(x=opportunity_names, y=[adjusted_opportunity], marker_color='green')])
     fig_op.update_layout(title="Opportunity Score", yaxis_title="Score")
     st.plotly_chart(fig_op)
 
     # Market Expansion Priority
     markets = ['Selected Market']
-    fig_market = go.Figure([go.Bar(x=markets, y=[market_priority], marker_color='blue')])
+    fig_market = go.Figure([go.Bar(x=markets, y=[adjusted_market], marker_color='blue')])
     fig_market.update_layout(title="Market Expansion Priority", yaxis_title="Priority Score")
     st.plotly_chart(fig_market)
 
-    # --- AI FEEDBACK & OPTIMIZATION LOOP ---
-    ai_results = run_ai_feedback(roi, risk_score, opportunity_score, allocation_score, market_priority)
+    # --- Strategic Recommendations (Owner-Focused) ---
+    st.subheader("Strategic Recommendations")
+    st.info("Based on Firmbase’s integrated business analysis, these are actionable next steps for the owner.")
 
-    st.subheader("AI Optimization Recommendations")
-    for engine, decision in ai_results["optimized_decision"].items():
-        st.write(f"{engine} Engine: {decision}")
+    # Display as table for clean executive look
+    import pandas as pd
+    recommendations_df = pd.DataFrame.from_dict(ai_results["optimized_decision"], orient='index', columns=['Recommended Action'])
+    st.table(recommendations_df)
     
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
