@@ -25,8 +25,6 @@ page = st.sidebar.selectbox(
 )
 
 # MASTER DASHBOARD
-if page == "Master Dashboard":
-    
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
