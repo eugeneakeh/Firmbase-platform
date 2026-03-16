@@ -3,6 +3,7 @@ from engines.financial_engine import run_financial_engine
 from engines.risk_engine import run_risk_engine
 from engines.opportunity_engine import run_opportunity_engine
 from engines.capital_engine import run_capital_engine
+from engines.market_engine import run_market_engine
 st.title("Firmbase Autonomous Strategy Platform")
 
 st.sidebar.title("Firmbase Navigation")
@@ -90,8 +91,16 @@ elif page == "Capital Allocation":
     st.write("Investment Decision:", results["decision"])
     
 elif page == "Market Expansion":
-    st.header("Market Expansion Engine")
-    st.write("Market intelligence coming soon.")
+
+    st.header("Global Market Expansion Engine")
+
+    size = st.number_input("Market Size",1000000)
+    regulation = st.slider("Regulatory Barrier",0.0,1.0,0.3)
+
+    results = run_market_engine(size,regulation)
+
+    st.write("Expansion Priority Score:", results["priority_score"])
+    st.write("Recommended Strategy:", results["decision"])
 
 elif page == "Governance":
     st.header("Governance & Compliance Engine")
