@@ -27,11 +27,9 @@ page = st.sidebar.selectbox(
 if page == "Master Dashboard":
 
     st.header("Firmbase Strategic Intelligence Dashboard")
-
     st.write("Unified strategic intelligence across all Firmbase engines")
 
     # --- Sample Inputs for Global Metrics ---
-    
     roi = 0.35
     risk_score = 1.5
     opportunity_score = 6.5
@@ -40,7 +38,6 @@ if page == "Master Dashboard":
     governance_exposure = 0
 
     # --- Strategic Indicators ---
-
     business_stability = (roi * (1 - risk_score/10)) * 100
     strategic_opportunity = opportunity_score * 10
     risk_exposure = risk_score * 10
@@ -48,6 +45,7 @@ if page == "Master Dashboard":
     capital_priority = allocation_score * 100
     expansion_priority = market_priority
 
+    # Display Metrics
     col1, col2 = st.columns(2)
 
     with col1:
@@ -59,37 +57,39 @@ if page == "Master Dashboard":
         st.metric("ROI Projection (%)", round(roi_projection,2))
         st.metric("Capital Allocation Priority", round(capital_priority,2))
         st.metric("Global Expansion Priority", expansion_priority)
-st.subheader("Visual Strategic Analytics")
 
-# ROI Trend (Sample Data)
-roi_trend = [25, 28, 32, 35, 37, 40]
-months = ["Jan","Feb","Mar","Apr","May","Jun"]
-fig_roi = go.Figure()
-fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode='lines+markers', name='ROI %'))
-fig_roi.update_layout(title="ROI Trend", xaxis_title="Month", yaxis_title="ROI (%)")
-st.plotly_chart(fig_roi)
+    # --- VISUAL INTELLIGENCE ---
+    st.subheader("Visual Strategic Analytics")
 
-# Risk Exposure Bar Chart
-risk_levels = ['Financial','Risk','Opportunity','Capital','Market','Governance']
-risk_values = [20, 15, 10, 12, 18, 5]  # Sample scores
-fig_risk = go.Figure([go.Bar(x=risk_levels, y=risk_values, marker_color='red')])
-fig_risk.update_layout(title="Risk Exposure by Engine", yaxis_title="Risk Score")
-st.plotly_chart(fig_risk)
+    # ROI Trend
+    roi_trend = [25, 28, 32, 35, 37, 40]
+    months = ["Jan","Feb","Mar","Apr","May","Jun"]
+    fig_roi = go.Figure()
+    fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode='lines+markers', name='ROI %'))
+    fig_roi.update_layout(title="ROI Trend", xaxis_title="Month", yaxis_title="ROI (%)")
+    st.plotly_chart(fig_roi)
 
-# Opportunity Scores
-opportunity_scores = [7, 6, 8, 5]
-opportunity_names = ['New Product','Partnership','Expansion','M&A']
-fig_op = go.Figure([go.Bar(x=opportunity_names, y=opportunity_scores, marker_color='green')])
-fig_op.update_layout(title="Opportunity Scores", yaxis_title="Score")
-st.plotly_chart(fig_op)
+    # Risk Exposure Bar Chart
+    risk_levels = ['Financial','Risk','Opportunity','Capital','Market','Governance']
+    risk_values = [20, 15, 10, 12, 18, 5]  # Sample scores
+    fig_risk = go.Figure([go.Bar(x=risk_levels, y=risk_values, marker_color='red')])
+    fig_risk.update_layout(title="Risk Exposure by Engine", yaxis_title="Risk Score")
+    st.plotly_chart(fig_risk)
 
-# Market Expansion Priority
-markets = ['USA','Nigeria','Germany','India']
-market_priority = [1000000, 500000, 800000, 650000]
-fig_market = go.Figure([go.Bar(x=markets, y=market_priority, marker_color='blue')])
-fig_market.update_layout(title="Market Expansion Priority", yaxis_title="Priority Score")
-st.plotly_chart(fig_market)
+    # Opportunity Scores
+    opportunity_scores = [7, 6, 8, 5]
+    opportunity_names = ['New Product','Partnership','Expansion','M&A']
+    fig_op = go.Figure([go.Bar(x=opportunity_names, y=opportunity_scores, marker_color='green')])
+    fig_op.update_layout(title="Opportunity Scores", yaxis_title="Score")
+    st.plotly_chart(fig_op)
 
+    # Market Expansion Priority
+    markets = ['USA','Nigeria','Germany','India']
+    market_priority_vals = [1000000, 500000, 800000, 650000]
+    fig_market = go.Figure([go.Bar(x=markets, y=market_priority_vals, marker_color='blue')])
+    fig_market.update_layout(title="Market Expansion Priority", yaxis_title="Priority Score")
+    st.plotly_chart(fig_market)
+    
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
 
