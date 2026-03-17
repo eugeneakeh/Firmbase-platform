@@ -22,8 +22,8 @@ page = st.sidebar.selectbox(
         "Opportunity Engine",
         "Capital Allocation",
         "Market Expansion",
-        "Governance"
-         "Business Simulation"
+        "Governance",
+        "Business Simulation"
     ]
 )
 
