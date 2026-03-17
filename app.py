@@ -25,7 +25,7 @@ page = st.sidebar.selectbox(
 )
 
 # MASTER DASHBOARD
-if page == "📈 Master Dashboard":
+if page == "Master Dashboard":
 
     st.header("Firmbase Strategic Intelligence Dashboard")
     st.write("Unified analysis across all Firmbase engines")
