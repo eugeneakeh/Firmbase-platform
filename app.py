@@ -212,43 +212,83 @@ elif page == "Business Simulation":
     st.header("Business Scenario Simulation")
     st.write("Experiment with changes to see projected outcomes and trade-offs.")
 
+    # -------------------------
+    # SAFE STATE FETCH (prevents NameError)
+    # -------------------------
+    revenue = st.session_state.get("revenue", 400000)
+    cost = st.session_state.get("cost", 150000)
+    severity = st.session_state.get("severity", 5)
+    probability = st.session_state.get("probability", 0.3)
+    priority = st.session_state.get("priority", 0.8)
+    expansion_priority = st.session_state.get("expansion_priority", 50)
+
+    starting_cash = st.session_state.get("starting_cash", 1000000)
+    commitments = st.session_state.get("commitments", 200000)
+    financial_risk = st.session_state.get("financial_risk", 0.1)
+    market_size = st.session_state.get("market_size", 1000000)
+    regulation = st.session_state.get("regulation", 0.3)
+    opportunity_score = st.session_state.get("opportunity_score", 7)
+
+    # -------------------------
+    # INPUTS
+    # -------------------------
     st.subheader("Adjustable Parameters")
+
     sim_revenue = st.number_input("Simulated Revenue ($)", value=revenue, step=10000)
     sim_cost = st.number_input("Simulated Cost ($)", value=cost, step=10000)
     sim_severity = st.slider("Simulated Risk Severity", 1, 10, severity)
     sim_probability = st.slider("Simulated Risk Probability", 0.0, 1.0, probability)
     sim_priority = st.slider("Simulated Capital Allocation Priority", 0.0, 1.0, priority)
-    sim_market = st.slider("Simulated Market Expansion Level", 0.0, 1.0, expansion_priority/100)
+    sim_market = st.slider("Simulated Market Expansion Level", 0.0, 1.0, expansion_priority / 100)
 
+    # -------------------------
+    # ENGINE RUN
+    # -------------------------
     sim_financial = run_financial_engine(starting_cash, commitments, sim_revenue, sim_cost, financial_risk)
     sim_roi = sim_financial["roi"]
+
     sim_risk = run_risk_engine(sim_severity, sim_probability)
     sim_risk_score = sim_risk["risk_score"]
+
     sim_capital = run_capital_engine(sim_roi, sim_priority, financial_risk)
     sim_allocation_score = sim_capital["allocation_score"]
+
     sim_market_res = run_market_engine(market_size, regulation)
     sim_market_priority = sim_market_res["priority_score"] * sim_market
 
-    sim_business_stability = (sim_roi * (1 - sim_risk_score/10)) * 100
+    # -------------------------
+    # METRICS
+    # -------------------------
+    sim_business_stability = (sim_roi * (1 - sim_risk_score / 10)) * 100
     sim_strategic_opportunity = opportunity_score * 10
     sim_risk_exposure = sim_risk_score * 10
     sim_roi_projection = sim_roi * 100
     sim_capital_priority = sim_allocation_score * 100
     sim_expansion_priority = sim_market_priority
 
+    # -------------------------
+    # DISPLAY
+    # -------------------------
     st.subheader("Simulation Results")
-    sim_col1, sim_col2 = st.columns(2)
-    with sim_col1:
-        st.metric("Business Stability Index", round(sim_business_stability,2))
-        st.metric("Strategic Opportunity Score", round(sim_strategic_opportunity,2))
-        st.metric("Risk Exposure Index", round(sim_risk_exposure,2))
-    with sim_col2:
-        st.metric("ROI Projection (%)", round(sim_roi_projection,2))
-        st.metric("Capital Allocation Priority", round(sim_capital_priority,2))
-        st.metric("Global Expansion Priority", round(sim_expansion_priority,2))
 
+    sim_col1, sim_col2 = st.columns(2)
+
+    with sim_col1:
+        st.metric("Business Stability Index", round(sim_business_stability, 2))
+        st.metric("Strategic Opportunity Score", round(sim_strategic_opportunity, 2))
+        st.metric("Risk Exposure Index", round(sim_risk_exposure, 2))
+
+    with sim_col2:
+        st.metric("ROI Projection (%)", round(sim_roi_projection, 2))
+        st.metric("Capital Allocation Priority", round(sim_capital_priority, 2))
+        st.metric("Global Expansion Priority", round(sim_expansion_priority, 2))
+
+    # -------------------------
+    # TRADE-OFF ANALYSIS
+    # -------------------------
     st.markdown("---")
     st.subheader("Trade-off Analysis")
+
     st.write(f"- Increasing market expansion to {sim_market*100:.0f}% increases expansion priority but may increase risk exposure by {sim_risk_score*10:.1f}")
     st.write(f"- Adjusting capital allocation affects ROI projection: new ROI = {round(sim_roi_projection,2)}")
     
