@@ -46,11 +46,7 @@ if page == "Master Dashboard":
         financial_risk = st.slider("Risk Factor", 0.0, 1.0, 0.1)
 
         financial_results = run_financial_engine(
-            starting_cash,
-            commitments,
-            revenue,
-            cost,
-            financial_risk
+            starting_cash, commitments, revenue, cost, financial_risk
         )
 
         roi = financial_results["roi"]
@@ -64,7 +60,6 @@ if page == "Master Dashboard":
         probability = st.slider("Probability", 0.0, 1.0, 0.3)
 
         risk_results = run_risk_engine(severity, probability)
-
         risk_score = risk_results["risk_score"]
 
     # -------------------------
@@ -75,11 +70,7 @@ if page == "Master Dashboard":
         opportunity_value = st.slider("Strategic Value", 1, 10, 7)
         opportunity_risk = st.slider("Risk Adjustment", 0.0, 1.0, 0.2)
 
-        opp_results = run_opportunity_engine(
-            opportunity_value,
-            opportunity_risk
-        )
-
+        opp_results = run_opportunity_engine(opportunity_value, opportunity_risk)
         opportunity_score = opp_results["opportunity_score"]
 
     # -------------------------
@@ -89,12 +80,7 @@ if page == "Master Dashboard":
 
         priority = st.slider("Strategic Priority", 0.0, 1.0, 0.8)
 
-        capital_results = run_capital_engine(
-            roi,
-            priority,
-            financial_risk
-        )
-
+        capital_results = run_capital_engine(roi, priority, financial_risk)
         allocation_score = capital_results["allocation_score"]
 
     # -------------------------
@@ -105,11 +91,7 @@ if page == "Master Dashboard":
         market_size = st.number_input("Market Size", value=1000000, step=10000)
         regulation = st.slider("Regulatory Barrier", 0.0, 1.0, 0.3)
 
-        market_results = run_market_engine(
-            market_size,
-            regulation
-        )
-
+        market_results = run_market_engine(market_size, regulation)
         market_priority = market_results["priority_score"]
 
     # -------------------------
@@ -119,23 +101,18 @@ if page == "Master Dashboard":
 
         compliance = st.selectbox(
             "Compliance Status",
-            [1,0],
+            [1, 0],
             format_func=lambda x: "Compliant" if x == 1 else "Non-Compliant"
         )
 
         gov_results = run_governance_engine(compliance)
-
         governance_exposure = gov_results["risk_exposure"]
 
     # -------------------------
     # AI Feedback (internal)
     # -------------------------
     ai_results = run_ai_feedback(
-        roi,
-        risk_score,
-        opportunity_score,
-        allocation_score,
-        market_priority
+        roi, risk_score, opportunity_score, allocation_score, market_priority
     )
 
     adjusted_roi = roi * ai_results["improvement_score"]["Financial"]
@@ -160,13 +137,13 @@ if page == "Master Dashboard":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.metric("Business Stability Index", round(business_stability,2))
-        st.metric("Strategic Opportunity Score", round(strategic_opportunity,2))
-        st.metric("Risk Exposure Index", round(risk_exposure,2))
+        st.metric("Business Stability Index", round(business_stability, 2))
+        st.metric("Strategic Opportunity Score", round(strategic_opportunity, 2))
+        st.metric("Risk Exposure Index", round(risk_exposure, 2))
 
     with col2:
-        st.metric("ROI Projection (%)", round(roi_projection,2))
-        st.metric("Capital Allocation Priority", round(capital_priority,2))
+        st.metric("ROI Projection (%)", round(roi_projection, 2))
+        st.metric("Capital Allocation Priority", round(capital_priority, 2))
         st.metric("Global Expansion Priority", expansion_priority)
 
     # -------------------------
@@ -186,20 +163,7 @@ if page == "Master Dashboard":
     ]
 
     fig_roi = go.Figure()
-    fig_roi.add_trace(
-        go.Scatter(
-            x=months,
-            y=roi_trend,
-            mode="lines+markers",
-            line=dict(color="royalblue", width=3)
-        )
-    )
-
-    fig_roi.update_layout(
-        title="ROI Trend",
-        xaxis_title="Month",
-        yaxis_title="ROI (%)"
-    )
+    fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode="lines+markers"))
 
     st.plotly_chart(fig_roi, use_container_width=True)
 
@@ -209,9 +173,7 @@ if page == "Master Dashboard":
     st.markdown("---")
     st.subheader("Strategic Recommendations")
 
-    st.info(
-        "These actions are derived from Firmbase's integrated business analysis engines."
-    )
+    st.info("These actions are derived from Firmbase's integrated business analysis engines.")
 
     recommendations_df = pd.DataFrame.from_dict(
         ai_results["optimized_decision"],
@@ -220,90 +182,80 @@ if page == "Master Dashboard":
     )
 
     st.table(recommendations_df)
-# -------------------------
-# Business Health Summary
-# -------------------------
-st.markdown("---")
-st.subheader("Business Health Summary")
 
-summary = []
+    # -------------------------
+    # Business Health Summary
+    # -------------------------
+    st.markdown("---")
+    st.subheader("Business Health Summary")
 
-if business_stability > 70:
-    summary.append("Your business is financially stable.")
-else:
-    summary.append("Your business shows signs of financial instability.")
+    summary = []
 
-if strategic_opportunity > 60:
-    summary.append("There is strong strategic opportunity available.")
-else:
-    summary.append("Strategic opportunities are currently limited.")
+    if business_stability > 70:
+        summary.append("Your business is financially stable.")
+    else:
+        summary.append("Your business shows signs of financial instability.")
 
-if risk_exposure > 50:
-    summary.append("Risk exposure is above safe threshold and requires attention.")
-else:
-    summary.append("Risk levels are within acceptable range.")
+    if strategic_opportunity > 60:
+        summary.append("There is strong strategic opportunity available.")
+    else:
+        summary.append("Strategic opportunities are currently limited.")
 
-for s in summary:
-    st.write(f"- {s}")
+    if risk_exposure > 50:
+        summary.append("Risk exposure is above safe threshold and requires attention.")
+    else:
+        summary.append("Risk levels are within acceptable range.")
 
+    for s in summary:
+        st.write(f"- {s}")
 
-# -------------------------
-# Business Classification
-# -------------------------
-st.markdown("---")
-st.subheader("Business Classification")
+    # -------------------------
+    # Business Classification
+    # -------------------------
+    st.markdown("---")
+    st.subheader("Business Classification")
 
-if business_stability > 70 and risk_exposure < 40:
-    classification = "A1 - Strong and Scalable"
-elif business_stability > 50:
-    classification = "B2 - Stable and Considered"
-else:
-    classification = "C3 - High Risk"
+    if business_stability > 70 and risk_exposure < 40:
+        classification = "A1 - Strong and Scalable"
+    elif business_stability > 50:
+        classification = "B2 - Stable and Considered"
+    else:
+        classification = "C3 - High Risk"
 
-st.success(f"Classification: {classification}")
+    st.success(f"Classification: {classification}")
 
+    # -------------------------
+    # Top Strategic Actions
+    # -------------------------
+    st.markdown("---")
+    st.subheader("Top Strategic Actions")
 
-# -------------------------
-# Top Strategic Actions
-# -------------------------
-st.markdown("---")
-st.subheader("Top Strategic Actions")
+    actions = []
 
-actions = []
+    if risk_exposure > 50:
+        actions.append("Reduce operational risk (Urgent)")
 
-if risk_exposure > 50:
-    actions.append("Reduce operational risk (Urgent)")
+    if capital_priority < 50:
+        actions.append("Improve capital allocation efficiency")
 
-if capital_priority < 50:
-    actions.append("Improve capital allocation efficiency")
+    if expansion_priority > 60:
+        actions.append("Expand into high-priority markets")
 
-if expansion_priority > 60:
-    actions.append("Expand into high-priority markets")
+    if len(actions) == 0:
+        actions.append("Maintain current strategic direction")
 
-if len(actions) == 0:
-    actions.append("Maintain current strategic direction")
+    for i, action in enumerate(actions[:3], 1):
+        st.write(f"{i}. {action}")
 
-for i, action in enumerate(actions[:3], 1):
-    st.write(f"{i}. {action}")
+    # -------------------------
+    # Key Drivers (WHY Layer)
+    # -------------------------
+    st.markdown("---")
+    st.subheader("Key Drivers")
 
-
-# -------------------------
-# Key Drivers (WHY Layer)
-# -------------------------
-st.markdown("---")
-st.subheader("Key Drivers")
-
-st.write(
-    f"Risk exposure is influenced by severity ({severity}) and probability ({probability})."
-)
-
-st.write(
-    f"ROI is driven by revenue ({revenue}) relative to cost ({cost})."
-)
-
-st.write(
-    f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority})."
-)
+    st.write(f"Risk exposure is influenced by severity ({severity}) and probability ({probability}).")
+    st.write(f"ROI is driven by revenue ({revenue}) relative to cost ({cost}).")
+    st.write(f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority}).")
 
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
