@@ -1,6 +1,43 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+def validate_inputs(data):
+    errors = []
+
+    if data["starting_cash"] <= 0:
+        errors.append("Starting cash must be greater than 0.")
+
+    if data["revenue"] <= 0:
+        errors.append("Revenue must be greater than 0.")
+
+    if data["cost"] < 0:
+        errors.append("Cost cannot be negative.")
+
+    if data["commitments"] < 0:
+        errors.append("Commitments cannot be negative.")
+
+    if data["cost"] > data["revenue"]:
+        errors.append("Cost cannot exceed revenue (unprofitable case not allowed here).")
+
+    if not (0 <= data["financial_risk"] <= 1):
+        errors.append("Financial risk must be between 0 and 1.")
+
+    if not (1 <= data["severity"] <= 10):
+        errors.append("Risk severity must be between 1 and 10.")
+
+    if not (0 <= data["probability"] <= 1):
+        errors.append("Risk probability must be between 0 and 1.")
+
+    if not (0 <= data["priority"] <= 1):
+        errors.append("Capital priority must be between 0 and 1.")
+
+    if data["market_size"] <= 0:
+        errors.append("Market size must be greater than 0.")
+
+    if not (0 <= data["regulation"] <= 1):
+        errors.append("Regulation must be between 0 and 1.")
+
+    return errors
 
 from engines.financial_engine import run_financial_engine
 from engines.risk_engine import run_risk_engine
