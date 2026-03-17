@@ -24,6 +24,7 @@ page = st.sidebar.selectbox(
         "Market Expansion",
         "Governance",
         "Business Simulation"
+        
         "System Check"
     ]
 )
