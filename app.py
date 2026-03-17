@@ -220,7 +220,91 @@ if page == "Master Dashboard":
     )
 
     st.table(recommendations_df)
-    
+# -------------------------
+# Business Health Summary
+# -------------------------
+st.markdown("---")
+st.subheader("Business Health Summary")
+
+summary = []
+
+if business_stability > 70:
+    summary.append("Your business is financially stable.")
+else:
+    summary.append("Your business shows signs of financial instability.")
+
+if strategic_opportunity > 60:
+    summary.append("There is strong strategic opportunity available.")
+else:
+    summary.append("Strategic opportunities are currently limited.")
+
+if risk_exposure > 50:
+    summary.append("Risk exposure is above safe threshold and requires attention.")
+else:
+    summary.append("Risk levels are within acceptable range.")
+
+for s in summary:
+    st.write(f"- {s}")
+
+
+# -------------------------
+# Business Classification
+# -------------------------
+st.markdown("---")
+st.subheader("Business Classification")
+
+if business_stability > 70 and risk_exposure < 40:
+    classification = "A1 - Strong and Scalable"
+elif business_stability > 50:
+    classification = "B2 - Stable and Considered"
+else:
+    classification = "C3 - High Risk"
+
+st.success(f"Classification: {classification}")
+
+
+# -------------------------
+# Top Strategic Actions
+# -------------------------
+st.markdown("---")
+st.subheader("Top Strategic Actions")
+
+actions = []
+
+if risk_exposure > 50:
+    actions.append("Reduce operational risk (Urgent)")
+
+if capital_priority < 50:
+    actions.append("Improve capital allocation efficiency")
+
+if expansion_priority > 60:
+    actions.append("Expand into high-priority markets")
+
+if len(actions) == 0:
+    actions.append("Maintain current strategic direction")
+
+for i, action in enumerate(actions[:3], 1):
+    st.write(f"{i}. {action}")
+
+
+# -------------------------
+# Key Drivers (WHY Layer)
+# -------------------------
+st.markdown("---")
+st.subheader("Key Drivers")
+
+st.write(
+    f"Risk exposure is influenced by severity ({severity}) and probability ({probability})."
+)
+
+st.write(
+    f"ROI is driven by revenue ({revenue}) relative to cost ({cost})."
+)
+
+st.write(
+    f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority})."
+)
+
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
 
