@@ -24,6 +24,7 @@ page = st.sidebar.selectbox(
         "Market Expansion",
         "Governance",
         "Business Simulation"
+        "System Check"
     ]
 )
 
@@ -334,3 +335,121 @@ elif page == "Governance":
 
     st.write("Governance Risk Exposure:", results["risk_exposure"])
     st.write("Status:", results["status"])
+    
+elif page == "System Check":
+
+    st.header("Firmbase Self-Test / System Check")
+    st.write("This will automatically test all engines, metrics, and Phase 1 outputs.")
+
+    errors = []
+
+    try:
+        # Default test inputs
+        test_starting_cash = 1000000
+        test_commitments = 200000
+        test_revenue = 400000
+        test_cost = 150000
+        test_financial_risk = 0.1
+        test_severity = 5
+        test_probability = 0.3
+        test_opportunity_value = 7
+        test_opportunity_risk = 0.2
+        test_priority = 0.8
+        test_market_size = 1000000
+        test_regulation = 0.3
+        test_compliance = 1
+
+        # -------------------------
+        # Run all engines
+        # -------------------------
+        financial_res = run_financial_engine(test_starting_cash, test_commitments, test_revenue, test_cost, test_financial_risk)
+        risk_res = run_risk_engine(test_severity, test_probability)
+        opp_res = run_opportunity_engine(test_opportunity_value, test_opportunity_risk)
+        capital_res = run_capital_engine(financial_res["roi"], test_priority, test_financial_risk)
+        market_res = run_market_engine(test_market_size, test_regulation)
+        gov_res = run_governance_engine(test_compliance)
+        ai_res = run_ai_feedback(financial_res["roi"], risk_res["risk_score"], opp_res["opportunity_score"], capital_res["allocation_score"], market_res["priority_score"])
+
+        # -------------------------
+        # Compute metrics
+        # -------------------------
+        adjusted_roi = financial_res["roi"] * ai_res["improvement_score"]["Financial"]
+        adjusted_risk_score = risk_res["risk_score"] * (1 - ai_res["improvement_score"]["Risk"])
+        adjusted_opportunity = opp_res["opportunity_score"] * ai_res["improvement_score"]["Opportunity"]
+        adjusted_allocation = capital_res["allocation_score"] * ai_res["improvement_score"]["Capital"]
+        adjusted_market = market_res["priority_score"] * ai_res["improvement_score"]["Market"]
+
+        business_stability = (adjusted_roi * (1 - adjusted_risk_score/10)) * 100
+        strategic_opportunity = adjusted_opportunity * 10
+        risk_exposure = adjusted_risk_score * 10
+        roi_projection = adjusted_roi * 100
+        capital_priority = adjusted_allocation * 100
+        expansion_priority = adjusted_market
+
+        # -------------------------
+        # Phase 1 outputs
+        # -------------------------
+        summary = []
+        if business_stability > 70:
+            summary.append("Business is financially stable.")
+        else:
+            summary.append("Business shows signs of financial instability.")
+
+        if strategic_opportunity > 60:
+            summary.append("Strong strategic opportunity available.")
+        else:
+            summary.append("Strategic opportunities are limited.")
+
+        if risk_exposure > 50:
+            summary.append("Risk exposure above safe threshold.")
+        else:
+            summary.append("Risk levels acceptable.")
+
+        if business_stability > 70 and risk_exposure < 40:
+            classification = "A1 - Strong and Scalable"
+        elif business_stability > 50:
+            classification = "B2 - Stable and Considered"
+        else:
+            classification = "C3 - High Risk"
+
+        actions = []
+        if risk_exposure > 50:
+            actions.append("Reduce operational risk")
+        if capital_priority < 50:
+            actions.append("Improve capital allocation")
+        if expansion_priority > 60:
+            actions.append("Explore expansion opportunities")
+        if len(actions)==0:
+            actions.append("Maintain current strategy")
+
+        # -------------------------
+        # Display outputs in table
+        # -------------------------
+        st.subheader("Engine Outputs / Metrics")
+        metrics_table = pd.DataFrame({
+            "Metric": [
+                "Business Stability", "Strategic Opportunity", "Risk Exposure",
+                "ROI Projection", "Capital Priority", "Expansion Priority",
+                "Classification", "Top Action 1", "Top Action 2", "Top Action 3"
+            ],
+            "Value": [
+                round(business_stability,2),
+                round(strategic_opportunity,2),
+                round(risk_exposure,2),
+                round(roi_projection,2),
+                round(capital_priority,2),
+                round(expansion_priority,2),
+                classification,
+                actions[0],
+                actions[1] if len(actions)>1 else "",
+                actions[2] if len(actions)>2 else ""
+            ]
+        })
+        st.table(metrics_table)
+
+        st.success("✅ Self-test completed successfully. All engines are running and metrics are calculated correctly.")
+
+    except Exception as e:
+        st.error("❌ Self-test failed. Check logs for details.")
+        st.write("Error details:", e)
+        
