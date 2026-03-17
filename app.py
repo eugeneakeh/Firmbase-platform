@@ -66,6 +66,7 @@ page = st.sidebar.selectbox(
 )
 
 
+# -------------------------
 # MASTER DASHBOARD
 # -------------------------
 if page == "Master Dashboard":
@@ -75,64 +76,128 @@ if page == "Master Dashboard":
     st.markdown("---")
 
     # -------------------------
-    # Financial Engine Inputs
+    # INPUTS
     # -------------------------
-    with st.expander("💰 Financial Engine Inputs", expanded=True):
-        starting_cash = st.number_input("Starting Cash ($)", value=1000000, step=10000)
-        commitments = st.number_input("Planned Commitments ($)", value=200000, step=10000)
-        revenue = st.number_input("Revenue ($)", value=400000, step=10000)
-        cost = st.number_input("Cost ($)", value=150000, step=10000)
-        financial_risk = st.slider("Risk Factor", 0.0, 1.0, 0.1)
-        financial_results = run_financial_engine(starting_cash, commitments, revenue, cost, financial_risk)
-        roi = financial_results["roi"]
+    with st.expander("💰 Financial Inputs"):
+        starting_cash = st.number_input("Starting Cash ($)", value=0, step=10000)
+        commitments = st.number_input("Planned Commitments ($)", value=0, step=10000)
+        revenue = st.number_input("Revenue ($)", value=0, step=10000)
+        cost = st.number_input("Cost ($)", value=0, step=10000)
+        financial_risk = st.slider("Financial Risk (0-1)", 0.0, 1.0, 0.1)
 
     # -------------------------
-    # Risk Engine Inputs
+    # RISK INPUTS
     # -------------------------
     with st.expander("⚠️ Risk Engine Inputs"):
-        severity = st.slider("Severity", 1, 10, 5)
-        probability = st.slider("Probability", 0.0, 1.0, 0.3)
-        risk_results = run_risk_engine(severity, probability)
-        risk_score = risk_results["risk_score"]
+        severity = st.slider("Risk Severity", 1, 10, 5)
+        probability = st.slider("Risk Probability", 0.0, 1.0, 0.3)
 
     # -------------------------
-    # Opportunity Engine Inputs
+    # OPPORTUNITY INPUTS
     # -------------------------
     with st.expander("🚀 Opportunity Engine Inputs"):
         opportunity_value = st.slider("Strategic Value", 1, 10, 7)
         opportunity_risk = st.slider("Risk Adjustment", 0.0, 1.0, 0.2)
-        opp_results = run_opportunity_engine(opportunity_value, opportunity_risk)
-        opportunity_score = opp_results["opportunity_score"]
 
     # -------------------------
-    # Capital Allocation Inputs
+    # CAPITAL ALLOCATION INPUTS
     # -------------------------
     with st.expander("💹 Capital Allocation"):
         priority = st.slider("Strategic Priority", 0.0, 1.0, 0.8)
-        capital_results = run_capital_engine(roi, priority, financial_risk)
-        allocation_score = capital_results["allocation_score"]
 
     # -------------------------
-    # Market Expansion Inputs
+    # MARKET INPUTS
     # -------------------------
     with st.expander("🌎 Market Expansion"):
-        market_size = st.number_input("Market Size", value=1000000, step=10000)
-        regulation = st.slider("Regulatory Barrier", 0.0, 1.0, 0.3)
-        market_results = run_market_engine(market_size, regulation)
-        market_priority = market_results["priority_score"]
+        market_size = st.number_input("Market Size", value=0, step=10000)
+        regulation = st.slider("Regulatory Barrier (0-1)", 0.0, 1.0, 0.3)
 
     # -------------------------
-    # Governance Inputs
+    # GOVERNANCE INPUTS
     # -------------------------
     with st.expander("🛡️ Governance & Compliance"):
         compliance = st.selectbox("Compliance Status", [1, 0], format_func=lambda x: "Compliant" if x==1 else "Non-Compliant")
-        gov_results = run_governance_engine(compliance)
-        governance_exposure = gov_results["risk_exposure"]
 
     # -------------------------
-    # AI Feedback
+    # STORE INPUTS IN SESSION STATE
     # -------------------------
+    st.session_state.update({
+        "starting_cash": starting_cash,
+        "commitments": commitments,
+        "revenue": revenue,
+        "cost": cost,
+        "financial_risk": financial_risk,
+        "severity": severity,
+        "probability": probability,
+        "opportunity_value": opportunity_value,
+        "opportunity_risk": opportunity_risk,
+        "priority": priority,
+        "market_size": market_size,
+        "regulation": regulation,
+        "compliance": compliance
+    })
+
+    # -------------------------
+    # INPUT VALIDATION
+    # -------------------------
+    def validate_inputs(data):
+        errors = []
+        if data["starting_cash"] <= 0:
+            errors.append("Starting cash must be greater than 0.")
+        if data["revenue"] <= 0:
+            errors.append("Revenue must be greater than 0.")
+        if data["cost"] < 0:
+            errors.append("Cost cannot be negative.")
+        if data["commitments"] < 0:
+            errors.append("Planned commitments cannot be negative.")
+        if data["cost"] > data["revenue"]:
+            errors.append("Cost cannot exceed revenue.")
+        if not (0 <= data["financial_risk"] <= 1):
+            errors.append("Financial risk must be between 0 and 1.")
+        if not (1 <= data["severity"] <= 10):
+            errors.append("Risk severity must be between 1 and 10.")
+        if not (0 <= data["probability"] <= 1):
+            errors.append("Risk probability must be between 0 and 1.")
+        if not (0 <= data["priority"] <= 1):
+            errors.append("Capital priority must be between 0 and 1.")
+        if data["market_size"] <= 0:
+            errors.append("Market size must be greater than 0.")
+        if not (0 <= data["regulation"] <= 1):
+            errors.append("Regulation must be between 0 and 1.")
+        return errors
+
+    input_data = st.session_state
+    validation_errors = validate_inputs(input_data)
+
+    if validation_errors:
+        st.error("⚠️ Input Errors Detected:")
+        for err in validation_errors:
+            st.write(f"- {err}")
+        st.stop()  # Stop further execution until inputs are corrected
+
+    # -------------------------
+    # RUN ENGINES
+    # -------------------------
+    financial_res = run_financial_engine(starting_cash, commitments, revenue, cost, financial_risk)
+    roi = financial_res["roi"]
+
+    risk_res = run_risk_engine(severity, probability)
+    risk_score = risk_res["risk_score"]
+
+    opp_res = run_opportunity_engine(opportunity_value, opportunity_risk)
+    opportunity_score = opp_res["opportunity_score"]
+
+    capital_res = run_capital_engine(roi, priority, financial_risk)
+    allocation_score = capital_res["allocation_score"]
+
+    market_res = run_market_engine(market_size, regulation)
+    market_priority = market_res["priority_score"]
+
+    gov_res = run_governance_engine(compliance)
+    governance_exposure = gov_res["risk_exposure"]
+
     ai_results = run_ai_feedback(roi, risk_score, opportunity_score, allocation_score, market_priority)
+
     adjusted_roi = roi * ai_results["improvement_score"]["Financial"]
     adjusted_risk_score = risk_score * (1 - ai_results["improvement_score"]["Risk"])
     adjusted_opportunity = opportunity_score * ai_results["improvement_score"]["Opportunity"]
@@ -140,28 +205,30 @@ if page == "Master Dashboard":
     adjusted_market = market_priority * ai_results["improvement_score"]["Market"]
 
     # -------------------------
-    # Strategic Metrics
+    # STRATEGIC METRICS
     # -------------------------
     st.markdown("---")
     st.subheader("Strategic Metrics")
-    business_stability = (adjusted_roi * (1 - adjusted_risk_score/10)) * 100
+
+    business_stability = (adjusted_roi * (1 - adjusted_risk_score / 10)) * 100
     strategic_opportunity = adjusted_opportunity * 10
     risk_exposure = adjusted_risk_score * 10
     roi_projection = adjusted_roi * 100
     capital_priority = adjusted_allocation * 100
     expansion_priority = adjusted_market
+
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Business Stability Index", round(business_stability,2))
-        st.metric("Strategic Opportunity Score", round(strategic_opportunity,2))
-        st.metric("Risk Exposure Index", round(risk_exposure,2))
+        st.metric("Business Stability Index", round(business_stability, 2))
+        st.metric("Strategic Opportunity Score", round(strategic_opportunity, 2))
+        st.metric("Risk Exposure Index", round(risk_exposure, 2))
     with col2:
-        st.metric("ROI Projection (%)", round(roi_projection,2))
-        st.metric("Capital Allocation Priority", round(capital_priority,2))
+        st.metric("ROI Projection (%)", round(roi_projection, 2))
+        st.metric("Capital Allocation Priority", round(capital_priority, 2))
         st.metric("Global Expansion Priority", expansion_priority)
 
     # -------------------------
-    # Visual Analytics
+    # VISUAL ANALYTICS
     # -------------------------
     st.markdown("---")
     st.subheader("Visual Analytics")
@@ -172,7 +239,7 @@ if page == "Master Dashboard":
     st.plotly_chart(fig_roi, use_container_width=True)
 
     # -------------------------
-    # Strategic Recommendations
+    # STRATEGIC RECOMMENDATIONS
     # -------------------------
     st.markdown("---")
     st.subheader("Strategic Recommendations")
@@ -181,7 +248,7 @@ if page == "Master Dashboard":
     st.table(recommendations_df)
 
     # -------------------------
-    # Phase 1 - Business Health Summary
+    # BUSINESS HEALTH SUMMARY
     # -------------------------
     st.markdown("---")
     st.subheader("Business Health Summary")
@@ -202,7 +269,7 @@ if page == "Master Dashboard":
         st.write(f"- {s}")
 
     # -------------------------
-    # Business Classification
+    # BUSINESS CLASSIFICATION
     # -------------------------
     st.markdown("---")
     st.subheader("Business Classification")
@@ -215,7 +282,7 @@ if page == "Master Dashboard":
     st.success(f"Classification: {classification}")
 
     # -------------------------
-    # Top Strategic Actions
+    # TOP STRATEGIC ACTIONS
     # -------------------------
     st.markdown("---")
     st.subheader("Top Strategic Actions")
@@ -232,102 +299,13 @@ if page == "Master Dashboard":
         st.write(f"{i}. {action}")
 
     # -------------------------
-    # Key Drivers (WHY Layer)
+    # KEY DRIVERS
     # -------------------------
     st.markdown("---")
     st.subheader("Key Drivers (WHY)")
     st.write(f"Risk exposure is influenced by severity ({severity}) and probability ({probability}).")
     st.write(f"ROI is driven by revenue ({revenue}) relative to cost ({cost}).")
     st.write(f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority}).")
-
-
-# -------------------------
-# BUSINESS SIMULATION ENGINE
-# -------------------------
-elif page == "Business Simulation":
-
-    st.header("Business Scenario Simulation")
-    st.write("Experiment with changes to see projected outcomes and trade-offs.")
-
-    # -------------------------
-    # SAFE STATE FETCH (prevents NameError)
-    # -------------------------
-    revenue = st.session_state.get("revenue", 400000)
-    cost = st.session_state.get("cost", 150000)
-    severity = st.session_state.get("severity", 5)
-    probability = st.session_state.get("probability", 0.3)
-    priority = st.session_state.get("priority", 0.8)
-    expansion_priority = st.session_state.get("expansion_priority", 50)
-
-    starting_cash = st.session_state.get("starting_cash", 1000000)
-    commitments = st.session_state.get("commitments", 200000)
-    financial_risk = st.session_state.get("financial_risk", 0.1)
-    market_size = st.session_state.get("market_size", 1000000)
-    regulation = st.session_state.get("regulation", 0.3)
-    opportunity_score = st.session_state.get("opportunity_score", 7)
-
-    # -------------------------
-    # INPUTS
-    # -------------------------
-    st.subheader("Adjustable Parameters")
-
-    sim_revenue = st.number_input("Simulated Revenue ($)", value=revenue, step=10000)
-    sim_cost = st.number_input("Simulated Cost ($)", value=cost, step=10000)
-    sim_severity = st.slider("Simulated Risk Severity", 1, 10, severity)
-    sim_probability = st.slider("Simulated Risk Probability", 0.0, 1.0, probability)
-    sim_priority = st.slider("Simulated Capital Allocation Priority", 0.0, 1.0, priority)
-    sim_market = st.slider("Simulated Market Expansion Level", 0.0, 1.0, expansion_priority / 100)
-
-    # -------------------------
-    # ENGINE RUN
-    # -------------------------
-    sim_financial = run_financial_engine(starting_cash, commitments, sim_revenue, sim_cost, financial_risk)
-    sim_roi = sim_financial["roi"]
-
-    sim_risk = run_risk_engine(sim_severity, sim_probability)
-    sim_risk_score = sim_risk["risk_score"]
-
-    sim_capital = run_capital_engine(sim_roi, sim_priority, financial_risk)
-    sim_allocation_score = sim_capital["allocation_score"]
-
-    sim_market_res = run_market_engine(market_size, regulation)
-    sim_market_priority = sim_market_res["priority_score"] * sim_market
-
-    # -------------------------
-    # METRICS
-    # -------------------------
-    sim_business_stability = (sim_roi * (1 - sim_risk_score / 10)) * 100
-    sim_strategic_opportunity = opportunity_score * 10
-    sim_risk_exposure = sim_risk_score * 10
-    sim_roi_projection = sim_roi * 100
-    sim_capital_priority = sim_allocation_score * 100
-    sim_expansion_priority = sim_market_priority
-
-    # -------------------------
-    # DISPLAY
-    # -------------------------
-    st.subheader("Simulation Results")
-
-    sim_col1, sim_col2 = st.columns(2)
-
-    with sim_col1:
-        st.metric("Business Stability Index", round(sim_business_stability, 2))
-        st.metric("Strategic Opportunity Score", round(sim_strategic_opportunity, 2))
-        st.metric("Risk Exposure Index", round(sim_risk_exposure, 2))
-
-    with sim_col2:
-        st.metric("ROI Projection (%)", round(sim_roi_projection, 2))
-        st.metric("Capital Allocation Priority", round(sim_capital_priority, 2))
-        st.metric("Global Expansion Priority", round(sim_expansion_priority, 2))
-
-    # -------------------------
-    # TRADE-OFF ANALYSIS
-    # -------------------------
-    st.markdown("---")
-    st.subheader("Trade-off Analysis")
-
-    st.write(f"- Increasing market expansion to {sim_market*100:.0f}% increases expansion priority but may increase risk exposure by {sim_risk_score*10:.1f}")
-    st.write(f"- Adjusting capital allocation affects ROI projection: new ROI = {round(sim_roi_projection,2)}")
     
 # FINANCIAL ENGINE
 elif page == "Financial Engine":
