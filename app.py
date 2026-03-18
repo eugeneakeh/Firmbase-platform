@@ -332,8 +332,7 @@ with st.expander("🌎 Market Expansion"):
 
 # OTHER ENGINES PLACEHOLDER
 
-elif page == "Risk Engine":
-
+if page == "Risk Engine":
     st.header("Risk Intelligence Engine")
 
     severity = st.slider("Risk Severity",1,10,5)
