@@ -323,7 +323,7 @@ with st.expander("💰 Financial Inputs"):
 with st.expander("🌎 Market Expansion"):
     market_size = st.number_input("Market Size ($)", value=10000, min_value=10000, step=10000)
     regulation = st.slider("Regulatory Barrier (0-1)", 0.0, 1.0, 0.3)
-    results = run_financial_engine(starting_cash,commitments,revenue,cost,risk)
+    results = run_financial_risk(starting_cash,commitments,revenue,cost,risk)
 
     st.write("Cash Available:", results["cash_available"])
     st.write("ROI:", results["roi"])
