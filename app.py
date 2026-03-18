@@ -307,17 +307,22 @@ if page == "Master Dashboard":
     st.write(f"ROI is driven by revenue ({revenue}) relative to cost ({cost}).")
     st.write(f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority}).")
     
-# FINANCIAL ENGINE
-elif page == "Financial Engine":
+# -------------------------
+# Financial Inputs
+# -------------------------
+with st.expander("💰 Financial Inputs"):
+    starting_cash = st.number_input("Starting Cash ($)", value=10000, min_value=10000, step=10000)
+    commitments = st.number_input("Planned Commitments ($)", value=10000, min_value=10000, step=10000)
+    revenue = st.number_input("Revenue ($)", value=10000, min_value=10000, step=10000)
+    cost = st.number_input("Cost ($)", value=10000, min_value=10000, step=10000)
+    financial_risk = st.slider("Financial Risk (0-1)", 0.0, 1.0, 0.1)
 
-    st.header("Financial Engine")
-
-    starting_cash = st.number_input("Starting Cash",1000000)
-    commitments = st.number_input("Planned Commitments",200000)
-    revenue = st.number_input("Revenue",400000)
-    cost = st.number_input("Cost",150000)
-    risk = st.slider("Risk Factor",0.0,1.0,0.1)
-
+# -------------------------
+# Market Inputs
+# -------------------------
+with st.expander("🌎 Market Expansion"):
+    market_size = st.number_input("Market Size ($)", value=10000, min_value=10000, step=10000)
+    regulation = st.slider("Regulatory Barrier (0-1)", 0.0, 1.0, 0.3)
     results = run_financial_engine(starting_cash,commitments,revenue,cost,risk)
 
     st.write("Cash Available:", results["cash_available"])
