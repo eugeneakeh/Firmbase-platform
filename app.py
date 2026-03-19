@@ -67,7 +67,7 @@ page = st.sidebar.selectbox(
 
 
 # -------------------------
-# MASTER DASHBOARD
+# MASTER DASHBOARD (PRODUCTION READY)
 # -------------------------
 if page == "Master Dashboard":
 
@@ -79,49 +79,34 @@ if page == "Master Dashboard":
     # INPUTS
     # -------------------------
     with st.expander("💰 Financial Inputs"):
-        starting_cash = st.number_input("Starting Cash ($)", value=0, step=10000)
+        starting_cash = st.number_input("Starting Cash ($)", value=10000, step=10000)
         commitments = st.number_input("Planned Commitments ($)", value=0, step=10000)
-        revenue = st.number_input("Revenue ($)", value=0, step=10000)
-        cost = st.number_input("Cost ($)", value=0, step=10000)
+        revenue = st.number_input("Revenue ($)", value=10000, step=10000)
+        cost = st.number_input("Cost ($)", value=5000, step=10000)
         financial_risk = st.slider("Financial Risk (0-1)", 0.0, 1.0, 0.1)
 
-    # -------------------------
-    # RISK INPUTS
-    # -------------------------
     with st.expander("⚠️ Risk Engine Inputs"):
         severity = st.slider("Risk Severity", 1, 10, 5)
         probability = st.slider("Risk Probability", 0.0, 1.0, 0.3)
 
-    # -------------------------
-    # OPPORTUNITY INPUTS
-    # -------------------------
     with st.expander("🚀 Opportunity Engine Inputs"):
         opportunity_value = st.slider("Strategic Value", 1, 10, 7)
         opportunity_risk = st.slider("Risk Adjustment", 0.0, 1.0, 0.2)
 
-    # -------------------------
-    # CAPITAL ALLOCATION INPUTS
-    # -------------------------
     with st.expander("💹 Capital Allocation"):
         priority = st.slider("Strategic Priority", 0.0, 1.0, 0.8)
 
-    # -------------------------
-    # MARKET INPUTS
-    # -------------------------
     with st.expander("🌎 Market Expansion"):
-        market_size = st.number_input("Market Size", value=0, step=10000)
+        market_size = st.number_input("Market Size ($)", value=10000, step=10000)
         regulation = st.slider("Regulatory Barrier (0-1)", 0.0, 1.0, 0.3)
 
-    # -------------------------
-    # GOVERNANCE INPUTS
-    # -------------------------
     with st.expander("🛡️ Governance & Compliance"):
-        compliance = st.selectbox("Compliance Status", [1, 0], format_func=lambda x: "Compliant" if x==1 else "Non-Compliant")
+        compliance = st.selectbox("Compliance Status", [1, 0], format_func=lambda x: "Compliant" if x == 1 else "Non-Compliant")
 
     # -------------------------
-    # STORE INPUTS IN SESSION STATE
+    # DATA OBJECT
     # -------------------------
-    st.session_state.update({
+    data = {
         "starting_cash": starting_cash,
         "commitments": commitments,
         "revenue": revenue,
@@ -135,10 +120,10 @@ if page == "Master Dashboard":
         "market_size": market_size,
         "regulation": regulation,
         "compliance": compliance
-    })
+    }
 
     # -------------------------
-    # INPUT VALIDATION
+    # VALIDATION
     # -------------------------
     def validate_inputs(data):
         errors = []
@@ -152,160 +137,150 @@ if page == "Master Dashboard":
             errors.append("Planned commitments cannot be negative.")
         if data["cost"] > data["revenue"]:
             errors.append("Cost cannot exceed revenue.")
-        if not (0 <= data["financial_risk"] <= 1):
-            errors.append("Financial risk must be between 0 and 1.")
-        if not (1 <= data["severity"] <= 10):
-            errors.append("Risk severity must be between 1 and 10.")
-        if not (0 <= data["probability"] <= 1):
-            errors.append("Risk probability must be between 0 and 1.")
-        if not (0 <= data["priority"] <= 1):
-            errors.append("Capital priority must be between 0 and 1.")
         if data["market_size"] <= 0:
             errors.append("Market size must be greater than 0.")
-        if not (0 <= data["regulation"] <= 1):
-            errors.append("Regulation must be between 0 and 1.")
         return errors
 
-    input_data = st.session_state
-    validation_errors = validate_inputs(input_data)
-
-    if validation_errors:
+    errors = validate_inputs(data)
+    if errors:
         st.error("⚠️ Input Errors Detected:")
-        for err in validation_errors:
-            st.write(f"- {err}")
-        st.stop()  # Stop further execution until inputs are corrected
+        for e in errors:
+            st.write(f"- {e}")
+        st.stop()
 
     # -------------------------
-    # RUN ENGINES
+    # RUN CORE ENGINE
     # -------------------------
-    financial_res = run_financial_engine(starting_cash, commitments, revenue, cost, financial_risk)
-    roi = financial_res["roi"]
-
-    risk_res = run_risk_engine(severity, probability)
-    risk_score = risk_res["risk_score"]
-
-    opp_res = run_opportunity_engine(opportunity_value, opportunity_risk)
-    opportunity_score = opp_res["opportunity_score"]
-
-    capital_res = run_capital_engine(roi, priority, financial_risk)
-    allocation_score = capital_res["allocation_score"]
-
-    market_res = run_market_engine(market_size, regulation)
-    market_priority = market_res["priority_score"]
-
-    gov_res = run_governance_engine(compliance)
-    governance_exposure = gov_res["risk_exposure"]
-
-    ai_results = run_ai_feedback(roi, risk_score, opportunity_score, allocation_score, market_priority)
-
-    adjusted_roi = roi * ai_results["improvement_score"]["Financial"]
-    adjusted_risk_score = risk_score * (1 - ai_results["improvement_score"]["Risk"])
-    adjusted_opportunity = opportunity_score * ai_results["improvement_score"]["Opportunity"]
-    adjusted_allocation = allocation_score * ai_results["improvement_score"]["Capital"]
-    adjusted_market = market_priority * ai_results["improvement_score"]["Market"]
+    results = run_all_engines(data)
 
     # -------------------------
-    # STRATEGIC METRICS
+    # METRICS (CLEAN + CONSISTENT)
+    # -------------------------
+    roi_projection = results["roi_projection"]
+    risk_exposure = results["risk_exposure"]
+    strategic_opportunity = results["strategic_opportunity"]
+    capital_priority = results["capital_priority"]
+    expansion_priority = results["expansion_priority"]
+
+    business_stability = (
+        roi_projection * 0.4 +
+        (100 - risk_exposure) * 0.4 +
+        capital_priority * 0.2
+    )
+
+    # -------------------------
+    # DISPLAY METRICS
     # -------------------------
     st.markdown("---")
     st.subheader("Strategic Metrics")
 
-    business_stability = (adjusted_roi * (1 - adjusted_risk_score / 10)) * 100
-    strategic_opportunity = adjusted_opportunity * 10
-    risk_exposure = adjusted_risk_score * 10
-    roi_projection = adjusted_roi * 100
-    capital_priority = adjusted_allocation * 100
-    expansion_priority = adjusted_market
-
     col1, col2 = st.columns(2)
+
     with col1:
         st.metric("Business Stability Index", round(business_stability, 2))
         st.metric("Strategic Opportunity Score", round(strategic_opportunity, 2))
         st.metric("Risk Exposure Index", round(risk_exposure, 2))
+
     with col2:
         st.metric("ROI Projection (%)", round(roi_projection, 2))
         st.metric("Capital Allocation Priority", round(capital_priority, 2))
-        st.metric("Global Expansion Priority", expansion_priority)
+        st.metric("Global Expansion Priority", round(expansion_priority, 2))
 
     # -------------------------
-    # VISUAL ANALYTICS
+    # VISUAL ANALYTICS (HONEST)
     # -------------------------
     st.markdown("---")
     st.subheader("Visual Analytics")
-    months = ["Jan","Feb","Mar","Apr","May","Jun"]
-    roi_trend = [adjusted_roi*80, adjusted_roi*85, adjusted_roi*90, adjusted_roi*95, adjusted_roi*100, adjusted_roi*105]
-    fig_roi = go.Figure()
-    fig_roi.add_trace(go.Scatter(x=months, y=roi_trend, mode="lines+markers", name="ROI Trend"))
-    st.plotly_chart(fig_roi, use_container_width=True)
+
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    roi_trend = [roi_projection for _ in months]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=months, y=roi_trend, mode="lines+markers", name="ROI"))
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption("Flat projection based on current conditions (no time simulation applied)")
 
     # -------------------------
-    # STRATEGIC RECOMMENDATIONS
+    # AI RECOMMENDATIONS
     # -------------------------
     st.markdown("---")
     st.subheader("Strategic Recommendations")
-    st.info("These actions are derived from Firmbase's integrated business analysis engines.")
-    recommendations_df = pd.DataFrame.from_dict(ai_results["optimized_decision"], orient="index", columns=["Recommended Action"])
-    st.table(recommendations_df)
+
+    ai = results["ai"]["optimized_decision"]
+
+    for key, val in ai.items():
+        st.write(f"**{val['action']}**")
+        st.write(f"- Reason: {val['reason']}")
+        st.write(f"- Impact: {val['impact']}")
+        st.markdown("---")
 
     # -------------------------
-    # BUSINESS HEALTH SUMMARY
+    # BUSINESS SUMMARY
     # -------------------------
-    st.markdown("---")
     st.subheader("Business Health Summary")
-    summary = []
+
     if business_stability > 70:
-        summary.append("Your business is financially stable.")
+        st.write("- Strong and stable business position")
+    elif business_stability > 50:
+        st.write("- Moderately stable, watch key risks")
     else:
-        summary.append("Your business shows signs of financial instability.")
+        st.write("- Weak stability, requires intervention")
+
+    if risk_exposure > 60:
+        st.write("- High risk exposure")
+    else:
+        st.write("- Risk under control")
+
     if strategic_opportunity > 60:
-        summary.append("There is strong strategic opportunity available.")
+        st.write("- Strong growth opportunities available")
     else:
-        summary.append("Strategic opportunities are currently limited.")
-    if risk_exposure > 50:
-        summary.append("Risk exposure is above safe threshold and requires attention.")
-    else:
-        summary.append("Risk levels are within acceptable range.")
-    for s in summary:
-        st.write(f"- {s}")
+        st.write("- Limited immediate opportunities")
 
     # -------------------------
-    # BUSINESS CLASSIFICATION
+    # CLASSIFICATION
     # -------------------------
     st.markdown("---")
     st.subheader("Business Classification")
+
     if business_stability > 70 and risk_exposure < 40:
         classification = "A1 - Strong and Scalable"
     elif business_stability > 50:
-        classification = "B2 - Stable and Considered"
+        classification = "B2 - Stable and Controlled"
     else:
         classification = "C3 - High Risk"
+
     st.success(f"Classification: {classification}")
 
     # -------------------------
-    # TOP STRATEGIC ACTIONS
+    # TOP ACTIONS
     # -------------------------
     st.markdown("---")
     st.subheader("Top Strategic Actions")
+
     actions = []
-    if risk_exposure > 50:
-        actions.append("Reduce operational risk (Urgent)")
+
+    if risk_exposure > 60:
+        actions.append("Reduce operational risk immediately")
+
     if capital_priority < 50:
         actions.append("Improve capital allocation efficiency")
+
     if expansion_priority > 60:
-        actions.append("Expand into high-priority markets")
-    if len(actions)==0:
+        actions.append("Expand into favorable markets")
+
+    if not actions:
         actions.append("Maintain current strategic direction")
-    for i, action in enumerate(actions[:3], 1):
-        st.write(f"{i}. {action}")
+
+    for i, act in enumerate(actions[:3], 1):
+        st.write(f"{i}. {act}")
 
     # -------------------------
-    # KEY DRIVERS
+    # TRANSPARENCY (AUDIT VIEW)
     # -------------------------
     st.markdown("---")
-    st.subheader("Key Drivers (WHY)")
-    st.write(f"Risk exposure is influenced by severity ({severity}) and probability ({probability}).")
-    st.write(f"ROI is driven by revenue ({revenue}) relative to cost ({cost}).")
-    st.write(f"Capital allocation priority is influenced by ROI ({round(roi,2)}) and strategic priority ({priority}).")
+    with st.expander("🔍 Engine Transparency (Audit)"):
+        st.json(results)
+
     
 # -------------------------
 # Financial Inputs
