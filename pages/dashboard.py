@@ -1,7 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-from core_engine import run_all_engines
-
+from engines.core_engine import run_all_engines
 
 def show():
     st.header("Strategic Intelligence Dashboard")
