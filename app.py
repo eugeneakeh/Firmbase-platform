@@ -5,8 +5,7 @@ import plotly.graph_objects as go
 # -------------------------
 # IMPORT CORE ENGINE
 # -------------------------
-from core_engine import run_all_engines
-
+from engines.core_engine import run_all_engines
 # -------------------------
 # APP CONFIG
 # -------------------------
