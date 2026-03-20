@@ -1,0 +1,162 @@
+# business_case_engine.py
+
+from typing import Dict, Any
+import math
+
+
+class BusinessCaseEngine:
+    """
+    Transforms simple business inputs into a structured, simulation-ready case.
+    """
+
+    def __init__(self):
+        pass
+
+    # -----------------------------
+    # ENTRY POINT
+    # -----------------------------
+    def build_case(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        revenue = inputs.get("revenue", 0)
+        cost = inputs.get("cost", 0)
+        cash = inputs.get("cash", 0)
+
+        trend = inputs.get("trend", "flat")  # up / flat / down
+        stage = inputs.get("stage", "growing")
+        market = inputs.get("market", "stable")
+
+        growth_rate = self._estimate_growth_rate(inputs, trend, market, stage)
+        projections = self._build_projections(revenue, cost, growth_rate)
+        runway = self._calculate_runway(cash, revenue, cost)
+        breakeven = self._calculate_breakeven(revenue, cost, growth_rate)
+
+        return {
+            "inputs": inputs,
+            "derived_metrics": {
+                "growth_rate": round(growth_rate, 4),
+                "profit_margin": self._profit_margin(revenue, cost),
+                "monthly_profit": revenue - cost
+            },
+            "projections": projections,
+            "runway": runway,
+            "breakeven_month": breakeven,
+            "health": self._assess_health(revenue, cost, runway),
+        }
+
+    # -----------------------------
+    # GROWTH ESTIMATION
+    # -----------------------------
+    def _estimate_growth_rate(self, inputs, trend, market, stage) -> float:
+        # If user provides it, use it
+        if "growth_rate" in inputs:
+            return inputs["growth_rate"]
+
+        base = 0.01  # default minimal growth
+
+        # Trend influence
+        trend_map = {
+            "up": 0.06,
+            "flat": 0.01,
+            "down": -0.04
+        }
+
+        # Market influence
+        market_map = {
+            "strong": 0.03,
+            "stable": 0.0,
+            "weak": -0.02
+        }
+
+        # Stage influence
+        stage_map = {
+            "startup": 0.08,
+            "growing": 0.05,
+            "mature": 0.02
+        }
+
+        growth = base
+        growth += trend_map.get(trend, 0)
+        growth += market_map.get(market, 0)
+        growth += stage_map.get(stage, 0)
+
+        return growth
+
+    # -----------------------------
+    # PROJECTIONS (6 months)
+    # -----------------------------
+    def _build_projections(self, revenue, cost, growth_rate, months=6):
+        projection = []
+
+        current_revenue = revenue
+        current_cost = cost
+
+        for month in range(1, months + 1):
+            current_revenue *= (1 + growth_rate)
+
+            # Assume cost grows slower than revenue
+            current_cost *= (1 + (growth_rate * 0.6))
+
+            profit = current_revenue - current_cost
+
+            projection.append({
+                "month": month,
+                "revenue": round(current_revenue, 2),
+                "cost": round(current_cost, 2),
+                "profit": round(profit, 2)
+            })
+
+        return projection
+
+    # -----------------------------
+    # RUNWAY CALCULATION
+    # -----------------------------
+    def _calculate_runway(self, cash, revenue, cost):
+        monthly_burn = cost - revenue
+
+        if monthly_burn <= 0:
+            return float("inf")  # profitable
+
+        return round(cash / monthly_burn, 2)
+
+    # -----------------------------
+    # BREAKEVEN ESTIMATION
+    # -----------------------------
+    def _calculate_breakeven(self, revenue, cost, growth_rate, max_months=24):
+        current_revenue = revenue
+        current_cost = cost
+
+        for month in range(1, max_months + 1):
+            if current_revenue >= current_cost:
+                return month
+
+            current_revenue *= (1 + growth_rate)
+            current_cost *= (1 + (growth_rate * 0.6))
+
+        return None  # not reached
+
+    # -----------------------------
+    # PROFIT MARGIN
+    # -----------------------------
+    def _profit_margin(self, revenue, cost):
+        if revenue == 0:
+            return 0
+        return round((revenue - cost) / revenue, 4)
+
+    # -----------------------------
+    # HEALTH ASSESSMENT
+    # -----------------------------
+    def _assess_health(self, revenue, cost, runway):
+        profit = revenue - cost
+
+        if profit > 0 and runway == float("inf"):
+            return "Strong"
+
+        if profit > 0:
+            return "Stable"
+
+        if runway is not None and runway < 3:
+            return "Critical"
+
+        if runway is not None and runway < 6:
+            return "Vulnerable"
+
+        return "Moderate"
