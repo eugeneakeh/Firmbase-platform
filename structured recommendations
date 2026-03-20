@@ -1,0 +1,198 @@
+# recommendation_engine.py
+
+from typing import List, Dict, Any
+from datetime import datetime
+
+
+class RecommendationEngine:
+    """
+    Converts multi-engine signals into structured business recommendations.
+    No AI labeling. Pure decision-support logic layer.
+    """
+
+    def __init__(self):
+        self.weights = {
+            "financial": 1.0,
+            "risk": 1.2,
+            "opportunity": 1.1,
+            "capital": 1.0,
+            "market": 1.1,
+            "governance": 0.9
+        }
+
+    # -----------------------------
+    # ENTRY POINT
+    # -----------------------------
+    def generate_recommendations(self, signals: List[Dict[str, Any]]) -> Dict[str, Any]:
+        grouped = self._group_signals(signals)
+        scored_items = self._score_signals(grouped)
+        ranked = self._rank_recommendations(scored_items)
+
+        return {
+            "generated_at": datetime.utcnow().isoformat(),
+            "summary": self._build_summary(ranked),
+            "recommendations": ranked
+        }
+
+    # -----------------------------
+    # GROUPING
+    # -----------------------------
+    def _group_signals(self, signals: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
+        grouped = {}
+
+        for s in signals:
+            category = s.get("type", "unknown")
+
+            if category not in grouped:
+                grouped[category] = []
+
+            grouped[category].append(s)
+
+        return grouped
+
+    # -----------------------------
+    # SCORING LOGIC
+    # -----------------------------
+    def _score_signals(self, grouped: Dict[str, List[Dict]]) -> List[Dict[str, Any]]:
+        scored = []
+
+        for category, items in grouped.items():
+            weight = self.weights.get(category, 1.0)
+
+            for item in items:
+                severity = item.get("severity", 0.5)
+                impact = item.get("impact", 0.5)
+
+                score = (severity * 0.6 + impact * 0.4) * weight
+
+                scored.append({
+                    "category": category,
+                    "source": item.get("source"),
+                    "context": item.get("context", ""),
+                    "score": round(score, 4),
+                    "raw": item
+                })
+
+        return scored
+
+    # -----------------------------
+    # RANKING
+    # -----------------------------
+    def _rank_recommendations(self, scored_items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        sorted_items = sorted(scored_items, key=lambda x: x["score"], reverse=True)
+
+        ranked_output = []
+
+        for idx, item in enumerate(sorted_items):
+            recommendation = self._build_recommendation(item, priority_rank=idx + 1)
+            ranked_output.append(recommendation)
+
+        return ranked_output
+
+    # -----------------------------
+    # CORE RECOMMENDATION BUILDER
+    # -----------------------------
+    def _build_recommendation(self, item: Dict[str, Any], priority_rank: int) -> Dict[str, Any]:
+        category = item["category"]
+        score = item["score"]
+        context = item.get("context", "")
+
+        action = self._derive_action(category, context, score)
+
+        return {
+            "priority_rank": priority_rank,
+            "category": category,
+            "priority_level": self._priority_level(score),
+            "observation": context,
+            "recommended_action": action,
+            "expected_effect": self._expected_effect(category),
+            "score": score,
+            "source": item.get("source"),
+            "explanation": self._build_explanation(item),
+        }
+
+    # -----------------------------
+    # ACTION MAPPING (RULE-BASED)
+    # -----------------------------
+    def _derive_action(self, category: str, context: str, score: float) -> str:
+        if category == "financial":
+            return "Review revenue-cost balance and optimize operating efficiency"
+
+        if category == "risk":
+            return "Reduce exposure and reinforce risk controls immediately"
+
+        if category == "opportunity":
+            return "Allocate resources to high-potential growth channels"
+
+        if category == "capital":
+            return "Reassess capital allocation and liquidity positioning"
+
+        if category == "market":
+            return "Adjust positioning based on market trend signals"
+
+        if category == "governance":
+            return "Strengthen compliance and internal decision structure"
+
+        return "Review and validate underlying business condition"
+
+    # -----------------------------
+    # PRIORITY LABELING
+    # -----------------------------
+    def _priority_level(self, score: float) -> str:
+        if score >= 0.75:
+            return "Critical"
+        elif score >= 0.55:
+            return "High"
+        elif score >= 0.35:
+            return "Medium"
+        else:
+            return "Low"
+
+    # -----------------------------
+    # EXPECTED EFFECTS
+    # -----------------------------
+    def _expected_effect(self, category: str) -> str:
+        effects = {
+            "financial": "Improves profitability and cash stability",
+            "risk": "Reduces downside exposure",
+            "opportunity": "Increases growth potential",
+            "capital": "Optimizes liquidity and funding structure",
+            "market": "Aligns business with external conditions",
+            "governance": "Improves decision consistency and compliance"
+        }
+
+        return effects.get(category, "Stabilizes operational performance")
+
+    # -----------------------------
+    # EXPLANATION ENGINE (NO BLACK BOX)
+    # -----------------------------
+    def _build_explanation(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        raw = item.get("raw", {})
+
+        return {
+            "why_this_appeared": raw.get("context", "Signal detected from engine output"),
+            "data_points_used": {
+                "severity": raw.get("severity", 0),
+                "impact": raw.get("impact", 0),
+                "source_engine": item.get("category")
+            },
+            "logic_flow": "Weighted scoring applied across severity, impact, and category priority"
+        }
+
+    # -----------------------------
+    # SUMMARY BUILDER
+    # -----------------------------
+    def _build_summary(self, ranked: List[Dict[str, Any]]) -> Dict[str, Any]:
+        critical = len([r for r in ranked if r["priority_level"] == "Critical"])
+        high = len([r for r in ranked if r["priority_level"] == "High"])
+
+        top_categories = {}
+        for r in ranked[:5]:
+            cat = r["category"]
+            top_categories[cat] = top_categories.get(cat, 0) + 1
+
+        return {
+            "critical_items": critical,
+            "high_priority_items": high,
+            "dominant_categories": sorted(top_categories.items(), key=lambda x: x[1], reverse=True)
+        }
