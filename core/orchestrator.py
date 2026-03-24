@@ -1,61 +1,37 @@
-from core.central_engine import run_central_engine
+from core.schema import validate_inputs
+from core.central_engine import aggregate_results
+
+from engines.financial_engine import run_financial_engine
+from engines.risk_engine import run_risk_engine
+from engines.opportunity_engine import run_opportunity_engine
+from engines.capital_engine import run_capital_engine
+from engines.market_engine import run_market_engine
+from engines.governance_engine import run_governance_engine
+from engines.business_case_engine import run_business_case_engine
+from engines.ai_feedback_engine import run_ai_feedback_engine
 
 
-def run_firmbase(inputs: dict):
-    """
-    Orchestrator layer:
-    - Validates inputs
-    - Cleans data
-    - Runs central engine
-    - Enhances output (future AI layer ready)
-    """
+def run_system(inputs: dict):
+    validate_inputs(inputs)
 
-    # ---- INPUT VALIDATION ----
-    validated_inputs = validate_inputs(inputs)
+    financials = run_financial_engine(inputs)
+    risk = run_risk_engine(inputs, financials)
+    opportunity = run_opportunity_engine(inputs)
+    market = run_market_engine(inputs)
+    governance = run_governance_engine(inputs)
+    capital = run_capital_engine(inputs, financials, risk)
+    business_case = run_business_case_engine(financials, risk)
 
-    # ---- RUN CORE SYSTEM ----
-    result = run_central_engine(validated_inputs)
+    aggregated = aggregate_results({
+        "financials": financials,
+        "risk": risk,
+        "opportunity": opportunity,
+        "market": market,
+        "governance": governance,
+        "capital": capital,
+        "business_case": business_case
+    })
 
-    # ---- POST PROCESSING ----
-    enhanced_result = enhance_output(result)
+    ai_feedback = run_ai_feedback_engine(aggregated)
 
-    return enhanced_result
-
-
-def validate_inputs(inputs: dict):
-    """
-    Ensures safe numeric inputs for all engines
-    """
-
-    safe_inputs = {}
-
-    # Required numeric fields with fallback defaults
-    safe_inputs["revenue"] = max(float(inputs.get("revenue", 0)), 0)
-    safe_inputs["cost"] = max(float(inputs.get("cost", 0)), 0)
-    safe_inputs["debt"] = max(float(inputs.get("debt", 0)), 0)
-    safe_inputs["capital"] = max(float(inputs.get("capital", 0)), 0)
-
-    # Optional advanced fields
-    safe_inputs["growth_rate"] = float(inputs.get("growth_rate", 0))
-    safe_inputs["market_size"] = float(inputs.get("market_size", 0))
-
-    return safe_inputs
-
-
-def enhance_output(result: dict):
-    """
-    Future AI layer hook (recommendations, insights, feedback)
-    """
-
-    score = result["overall_score"]
-
-    if score >= 75:
-        recommendation = "Business is strong. Focus on scaling and expansion."
-    elif score >= 50:
-        recommendation = "Business is stable. Optimize weak areas before scaling."
-    else:
-        recommendation = "High risk detected. Prioritize financial stabilization."
-
-    result["recommendation"] = recommendation
-
-    return result
+    return {**aggregated, "ai_feedback": ai_feedback}
