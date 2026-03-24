@@ -1,20 +1,16 @@
-from typing import Dict, Any
+class InputSchema:
+    REQUIRED_FIELDS = ["revenue", "cost"]
 
 
-def build_response(
-    score: float,
-    label: str,
-    insight: str,
-    metrics: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Standard response format for all engines in Firmbase.
-    Ensures consistency across the system.
-    """
+def validate_inputs(inputs: dict):
+    if not isinstance(inputs, dict):
+        raise TypeError("Inputs must be a dictionary")
 
-    return {
-        "score": round(score, 2),
-        "label": label,
-        "insight": insight,
-        "metrics": metrics
-    }
+    for field in InputSchema.REQUIRED_FIELDS:
+        if field not in inputs:
+            raise ValueError(f"Missing required input: {field}")
+
+    if inputs["revenue"] < 0 or inputs["cost"] < 0:
+        raise ValueError("Revenue and cost must be non-negative")
+
+    return True
